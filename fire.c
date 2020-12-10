@@ -1,6 +1,6 @@
 /*
- * Ê¹ÓÃÄ£ÄâÍË»ğËã·¨(SA)Çó½âTSPÎÊÌâ(ÒÔÖĞ¹úTSPÎÊÌâÎªÀı)
- * ²Î¿¼×Ô¡¶Matlab ÖÇÄÜËã·¨30¸ö°¸Àı·ÖÎö¡·
+ * ä½¿ç”¨æ¨¡æ‹Ÿé€€ç«ç®—æ³•(SA)æ±‚è§£TSPé—®é¢˜(ä»¥ä¸­å›½TSPé—®é¢˜ä¸ºä¾‹)
+ * å‚è€ƒè‡ªã€ŠMatlab æ™ºèƒ½ç®—æ³•30ä¸ªæ¡ˆä¾‹åˆ†æã€‹
  */
  #include"mpi.h"
 #include<stdio.h>
@@ -9,34 +9,33 @@
 #include<time.h>
 #include<math.h>
 
-#define T0 50000.0  // ³õÊ¼ÎÂ¶È
+#define T0 50000.0  // åˆå§‹æ¸©åº¦
 #define T_end (1e-8)
-#define q  0.98   // ÍË»ğÏµÊı
-#define L 1000  // Ã¿¸öÎÂ¶ÈÊ±µÄµü´ú´ÎÊı£¬¼´Á´³¤
-#define N 32  // ³ÇÊĞÊıÁ¿
-//int city_list[N]; // ÓÃÓÚ´æ·ÅÒ»¸ö½â
+#define q  0.98   // é€€ç«ç³»æ•°
+#define L 1000  // æ¯ä¸ªæ¸©åº¦æ—¶çš„è¿­ä»£æ¬¡æ•°ï¼Œå³é“¾é•¿
+#define N 32  // åŸå¸‚æ•°é‡
+//int city_list[N]; // ç”¨äºå­˜æ”¾ä¸€ä¸ªè§£
 
-// ÖĞ¹ú32¸ö³ÇÊĞ×ø±ê
+// ä¸­å›½32ä¸ªåŸå¸‚åæ ‡
 double city_pos[N][2] =
 {
 {1304,2312},{3639,1315},{4177,2244},{3712,1399},
 {3488,1535},{3326,1556},{3238,1229},{4196,1004},
 {4312,7901},{4386,5702},{3007,1970},{2562,1756},
-{2788,1491},{2381,1676},{1332,695},
-{3715,1678},{3918,2179},{4061,2370},
-{3780,2212},{3676,2578},{4029,2838},
-{4263,2931},{3429,1908},{3507,2367},
-{3394,2643},{3439,3201},{2935,3240},
-{3140,3550},{2545,2357},{2778,2826},
-{2370,2975},{2323,2233} 
+{2788,1491},{2381,1676},{1332,6953},{3715,1678},
+{3918,2179},{4061,2370},{3780,2212},{3676,2578},
+{4029,2838},{4263,2931},{3429,1908},{3507,2367},
+{3394,2643},{3439,3201},{2935,3240},{3140,3550},
+{2545,2357},{2778,2826},{2370,2975},{4520,3412}
+
 };
 
-//º¯ÊıÉùÃ÷
-double distance(double *,double *); // ¼ÆËãÁ½¸ö³ÇÊĞ¾àÀë
-double path_len(int* arr, double** city_divided, int CityNumber);  // ¼ÆËãÂ·¾¶³¤¶È
-void  init(int* city_list, int cityNumber);  //³õÊ¼»¯º¯Êı
-void create_new(int CityNumber, int* city_list); // ²úÉúĞÂ½â
-// ¾àÀëº¯Êı
+//å‡½æ•°å£°æ˜
+double distance(double *,double *); // è®¡ç®—ä¸¤ä¸ªåŸå¸‚è·ç¦»
+double path_len(int* arr, double** city_divided, int CityNumber);  // è®¡ç®—è·¯å¾„é•¿åº¦
+void  init(int* city_list, int cityNumber);  //åˆå§‹åŒ–å‡½æ•°
+void create_new(int CityNumber, int* city_list); // äº§ç”Ÿæ–°è§£
+// è·ç¦»å‡½æ•°
 double distance(double * city1,double * city2)
 {
     
@@ -48,17 +47,17 @@ double distance(double * city1,double * city2)
     return dis;
 }
 
-// ¼ÆËãÂ·¾¶³¤¶È
+// è®¡ç®—è·¯å¾„é•¿åº¦
 double path_len(int * arr,double** city_divided,int CityNumber)
 {
 
     //test
     if(CityNumber==N)
     {
-	    //arrÎªÄ³´Î½á¹ûµÄ³ÇÊĞ×ø±êĞòÁĞ
-    //dividedÎªÊı¾İ×ø±ê¼¯
-    double path = 0; // ³õÊ¼»¯Â·¾¶³¤¶È
-    int index = *arr; // ¶¨Î»µ½µÚÒ»¸öÊı×Ö(³ÇÊĞĞòºÅ)
+	    //arrä¸ºæŸæ¬¡ç»“æœçš„åŸå¸‚åæ ‡åºåˆ—
+    //dividedä¸ºæ•°æ®åæ ‡é›†
+    double path = 0; // åˆå§‹åŒ–è·¯å¾„é•¿åº¦
+    int index = *arr; // å®šä½åˆ°ç¬¬ä¸€ä¸ªæ•°å­—(åŸå¸‚åºå·)
     
     
     for(int i=0;i< CityNumber -1;i++)
@@ -70,20 +69,20 @@ double path_len(int * arr,double** city_divided,int CityNumber)
                                 city_pos[index2-1]);
         path += dis;
     }
-    int last_index = *(arr+ CityNumber -1); // ×îºóÒ»¸ö³ÇÊĞĞòºÅ
-    int first_index = *arr; // µÚÒ»¸ö³ÇÊĞĞòºÅ
+    int last_index = *(arr+ CityNumber -1); // æœ€åä¸€ä¸ªåŸå¸‚åºå·
+    int first_index = *arr; // ç¬¬ä¸€ä¸ªåŸå¸‚åºå·
     double last_dis = distance(city_pos[last_index-1],
                                 city_pos[first_index-1]);
     path = path + last_dis;
-    return path; // ·µ»Ø×ÜµÄÂ·¾¶³¤¶È
+    return path; // è¿”å›æ€»çš„è·¯å¾„é•¿åº¦
 	   
     }
     else
     {
-    //arrÎªÄ³´Î½á¹ûµÄ³ÇÊĞ×ø±êĞòÁĞ
-    //dividedÎªÊı¾İ×ø±ê¼¯
-    double path = 0; // ³õÊ¼»¯Â·¾¶³¤¶È
-    int index = *arr; // ¶¨Î»µ½µÚÒ»¸öÊı×Ö(³ÇÊĞĞòºÅ)
+    //arrä¸ºæŸæ¬¡ç»“æœçš„åŸå¸‚åæ ‡åºåˆ—
+    //dividedä¸ºæ•°æ®åæ ‡é›†
+    double path = 0; // åˆå§‹åŒ–è·¯å¾„é•¿åº¦
+    int index = *arr; // å®šä½åˆ°ç¬¬ä¸€ä¸ªæ•°å­—(åŸå¸‚åºå·)
   
     for(int i=0;i< CityNumber -1;i++)
     {
@@ -94,36 +93,36 @@ double path_len(int * arr,double** city_divided,int CityNumber)
 	
         path += dis;
     }
-    int last_index = *(arr+ CityNumber -1); // ×îºóÒ»¸ö³ÇÊĞĞòºÅ
-    int first_index = *arr; // µÚÒ»¸ö³ÇÊĞĞòºÅ
+    int last_index = *(arr+ CityNumber -1); // æœ€åä¸€ä¸ªåŸå¸‚åºå·
+    int first_index = *arr; // ç¬¬ä¸€ä¸ªåŸå¸‚åºå·
     double last_dis = distance(city_divided[last_index-1],
                                 city_divided[first_index-1]);
     path = path + last_dis;
-    return path; // ·µ»Ø×ÜµÄÂ·¾¶³¤¶È
+    return path; // è¿”å›æ€»çš„è·¯å¾„é•¿åº¦
     }
 }
 
-// ³õÊ¼»¯º¯Êı
+// åˆå§‹åŒ–å‡½æ•°
 void init(int *city_list,int cityNumber)
 {
     for(int i=0;i< cityNumber;i++)
-        city_list[i] = i+1;  // ³õÊ¼»¯Ò»¸ö½â
+        city_list[i] = i+1;  // åˆå§‹åŒ–ä¸€ä¸ªè§£
 }
 
-// ²úÉúÒ»¸öĞÂ½â
-// ´Ë´¦²ÉÓÃËæ»ú½»²æÁ½¸öÎ»ÖÃµÄ·½Ê½²úÉúĞÂµÄ½â
+// äº§ç”Ÿä¸€ä¸ªæ–°è§£
+// æ­¤å¤„é‡‡ç”¨éšæœºäº¤å‰ä¸¤ä¸ªä½ç½®çš„æ–¹å¼äº§ç”Ÿæ–°çš„è§£
 void create_new(int CityNumber,int *city_list)
 {
     double r1 = ((double)rand())/(RAND_MAX+1.0);
     double r2 = ((double)rand())/(RAND_MAX+1.0);
-    int pos1 = (int)(CityNumber *r1); //µÚÒ»¸ö½»²æµãµÄÎ»ÖÃ
+    int pos1 = (int)(CityNumber *r1); //ç¬¬ä¸€ä¸ªäº¤å‰ç‚¹çš„ä½ç½®
     int pos2 = (int)(CityNumber *r2);
     int temp = city_list[pos1];
     city_list[pos1] = city_list[pos2];
-    city_list[pos2] = temp;   // ½»»»Á½¸öµã
+    city_list[pos2] = temp;   // äº¤æ¢ä¸¤ä¸ªç‚¹
 }
 
-//ÓÃÓÚÈ«ÅÅÁĞµÄÁ½¸öº¯Êı
+//ç”¨äºå…¨æ’åˆ—çš„ä¸¤ä¸ªå‡½æ•°
 void swap(int i, int *a,int offset)
 {
     int temp;
@@ -134,12 +133,12 @@ void swap(int i, int *a,int offset)
 
 double perm(int* midlist,int** citylist, int* index, int len ,int cityNumber,int remain,int offset)
 {
-    //lenÎª±éÀú´ÎÊı
-    //nn¼ÇÂ¼midlistµÄµÚÒ»¸öindex
-    int n=0;//¼ÇÂ¼midListµÄµÚ¶ş¸öindex
+    //lenä¸ºéå†æ¬¡æ•°
+    //nnè®°å½•midlistçš„ç¬¬ä¸€ä¸ªindex
+    int n=0;//è®°å½•midListçš„ç¬¬äºŒä¸ªindex
     static int nn=0;
     int temp=0;
-    static double shortestListDistance;//¼ÇÂ¼×î¶ÌµÄÂ·¾¶¾àÀë
+    static double shortestListDistance;//è®°å½•æœ€çŸ­çš„è·¯å¾„è·ç¦»
     double distance;
     //int list[N];
     int* list=(int*)malloc(N*sizeof(int));
@@ -183,7 +182,7 @@ double perm(int* midlist,int** citylist, int* index, int len ,int cityNumber,int
 		}
         }
         
-        //ÅĞ¶ÏÊÇ·ñÊÇ½Ï¶ÌµÄÂ·¾¶
+        //åˆ¤æ–­æ˜¯å¦æ˜¯è¾ƒçŸ­çš„è·¯å¾„
         if(nn==0)
         {
            shortestListDistance = path_len(list, city_pos, N);
@@ -219,10 +218,10 @@ double perm(int* midlist,int** citylist, int* index, int len ,int cityNumber,int
 }
 
 
-// Ö÷º¯Êı
+// ä¸»å‡½æ•°
 int main(int argc, char* argv[])
 {
-    int myid, numprocs, namelen,cityNumber;//cityNumberÊÇÃ¿¸ö½ø³ÌĞèÒª´¦ÀíµÄ³ÇÊĞÊıÁ¿
+    int myid, numprocs, namelen,cityNumber;//cityNumberæ˜¯æ¯ä¸ªè¿›ç¨‹éœ€è¦å¤„ç†çš„åŸå¸‚æ•°é‡
     char processor_name[MPI_MAX_PROCESSOR_NAME];
     double** city_divided;
     double startwtime = 0.0,midwtime, endwtime;
@@ -236,7 +235,7 @@ int main(int argc, char* argv[])
     if (numprocs > 1)
     {
 
-        //·Ö³ÉÏàÓ¦µÄ·İÊı
+        //åˆ†æˆç›¸åº”çš„ä»½æ•°
         int remain = N % (numprocs - 1);
         if (remain != 0)
         {
@@ -289,7 +288,7 @@ int main(int argc, char* argv[])
 
         if (myid == 0)
         {
-            int** cityList = (int**)malloc((numprocs-1) * sizeof(int));//ÓÃÓÚ´æ·Å×Ó½ø³ÌµÄ½á¹û
+            int** cityList = (int**)malloc((numprocs-1) * sizeof(int));//ç”¨äºå­˜æ”¾å­è¿›ç¨‹çš„ç»“æœ
             
             if(remain==0)
             {
@@ -300,11 +299,11 @@ int main(int argc, char* argv[])
             }
             else
             {
-            		//´ËÊ±cityNumberÎª½ÏĞ¡µÄÊı
+            		//æ­¤æ—¶cityNumberä¸ºè¾ƒå°çš„æ•°
 		    for (int i = 0; i < numprocs-1; i++)
 		    {
 		    	
-			if (i <= remain)
+			if (i < remain)
 			{
 				cityList[i] = (int*)malloc((cityNumber+1) * sizeof(int));
 			}
@@ -319,9 +318,9 @@ int main(int argc, char* argv[])
             startwtime = MPI_Wtime();
             MPI_Barrier(MPI_COMM_WORLD);
             midwtime = MPI_Wtime();
-            double cTime = midwtime - startwtime;//×Ó½ÚµãµÄ¼ÆËãÊ±¼ä
-            printf("slaver finished,time:%fms \t ,final linking...\n", cTime * 1000);
-            //¿ªÊ¼½ÓÊÕËùÓĞ½á¹û
+            double cTime = midwtime - startwtime;//å­èŠ‚ç‚¹çš„è®¡ç®—æ—¶é—´
+            printf("slaver finished,time:%f s \t ,final linking...\n", cTime);
+            //å¼€å§‹æ¥æ”¶æ‰€æœ‰ç»“æœ
             if(remain==0)
             {
             	    for (int i = 0; i < numprocs-1; i++)
@@ -344,33 +343,33 @@ int main(int argc, char* argv[])
 		        }
 		    }
             }
-            //¿ªÊ¼½«ÊÕµ½µÄlist½á¹ûÆäÁ¬½Ó        
-            int index[numprocs - 1];//ÓÃÓÚÈ«ÅÅÁĞ,¸ÃÊı×éµÄÖµ×÷Îªcitylist¡¾n¡¿µÄÏÂ±ê
+            //å¼€å§‹å°†æ”¶åˆ°çš„listç»“æœå…¶è¿æ¥        
+            int index[numprocs - 1];//ç”¨äºå…¨æ’åˆ—,è¯¥æ•°ç»„çš„å€¼ä½œä¸ºcitylistã€nã€‘çš„ä¸‹æ ‡
             for (int i = 0; i < numprocs - 1; i++)
             {
                 index[i] = i;
             }
-            //int** midList;//È«ÅÅÁĞºóµÄ½á¹û
+            //int** midList;//å…¨æ’åˆ—åçš„ç»“æœ
             
-            int allpai=numprocs-1;//È«ÅÅÁĞµÄ½âµÄÊıÁ¿
+            int allpai=numprocs-1;//å…¨æ’åˆ—çš„è§£çš„æ•°é‡
             for(int i=numprocs-2;i>0;i--)
             {
             	allpai=allpai*i;                       	
             }
   
-            int bestList[N];//Ïà¶Ô×îÓÅµÄÂ·¾¶
+            int bestList[N];//ç›¸å¯¹æœ€ä¼˜çš„è·¯å¾„
             double shortestListDistance1;
             shortestListDistance1 = perm(bestList, cityList, index, numprocs - 1, cityNumber, remain, 0);
             
             endwtime = MPI_Wtime();
 
-            printf("all finished,shortest distance is :%f\t,total time :%fms\t\n",shortestListDistance1, (endwtime-startwtime) * 1000);
+            printf("\n\nall finished,shortest distance is :%f\t,total time :%f s\t\n",shortestListDistance1, (endwtime-startwtime));
             printf("relative best path :\n");
-            for (int i = 0; i < N; i++)  // Êä³ö×îÓÅÂ·¾¶
+            for (int i = 0; i < N; i++)  // è¾“å‡ºæœ€ä¼˜è·¯å¾„
             {
                 if(i==N-1)
                 {
-                	 printf("%d",bestList[i]);
+                	 printf("%d \n",bestList[i]);
                 }
                 else
                 {
@@ -384,59 +383,59 @@ int main(int argc, char* argv[])
             int city_list[cityNumber];
 
             double T;
-            int count = 0; // ¼ÇÂ¼½µÎÂ´ÎÊı
-            T = T0; //³õÊ¼ÎÂ¶È
-            init(city_list,cityNumber); //³õÊ¼»¯Ò»¸ö½â
+            int count = 0; // è®°å½•é™æ¸©æ¬¡æ•°
+            T = T0; //åˆå§‹æ¸©åº¦
+            init(city_list,cityNumber); //åˆå§‹åŒ–ä¸€ä¸ªè§£
             
              
-            int city_list_copy[cityNumber]; // ÓÃÓÚ±£´æÔ­Ê¼½â
-            double f1, f2, df; //f1Îª³õÊ¼½âÄ¿±êº¯ÊıÖµ£¬
-                             //f2ÎªĞÂ½âÄ¿±êº¯ÊıÖµ£¬dfÎª¶şÕß²îÖµ
-            double r; // 0-1Ö®¼äµÄËæ»úÊı£¬ÓÃÀ´¾ö¶¨ÊÇ·ñ½ÓÊÜĞÂ½â
-            while (T > T_end) // µ±ÎÂ¶ÈµÍÓÚ½áÊøÎÂ¶ÈÊ±£¬ÍË»ğ½áÊø
+            int city_list_copy[cityNumber]; // ç”¨äºä¿å­˜åŸå§‹è§£
+            double f1, f2, df; //f1ä¸ºåˆå§‹è§£ç›®æ ‡å‡½æ•°å€¼ï¼Œ
+                             //f2ä¸ºæ–°è§£ç›®æ ‡å‡½æ•°å€¼ï¼Œdfä¸ºäºŒè€…å·®å€¼
+            double r; // 0-1ä¹‹é—´çš„éšæœºæ•°ï¼Œç”¨æ¥å†³å®šæ˜¯å¦æ¥å—æ–°è§£
+            while (T > T_end) // å½“æ¸©åº¦ä½äºç»“æŸæ¸©åº¦æ—¶ï¼Œé€€ç«ç»“æŸ
             {
                 for (int i = 0; i < L; i++)
                 {
-                    // ¸´ÖÆÊı×é
+                    // å¤åˆ¶æ•°ç»„
                                  
                     memcpy(city_list_copy, city_list, cityNumber * sizeof(int));
-                    create_new(cityNumber,city_list); // ²úÉúĞÂ½â
+                    create_new(cityNumber,city_list); // äº§ç”Ÿæ–°è§£
                     f1 = path_len(city_list_copy, city_divided,cityNumber);
                     f2 = path_len(city_list, city_divided,cityNumber);
  
-                    df = f2 - f1;//¾É½â¼õÈ¥ĞÂ½âÊ±
-                    // ÒÔÏÂÊÇMetropolis×¼Ôò
+                    df = f2 - f1;//æ—§è§£å‡å»æ–°è§£æ—¶
+                    // ä»¥ä¸‹æ˜¯Metropoliså‡†åˆ™
                     if (df >= 0)
                     {
-                        //ĞÂÉú³ÉµÄ½â¸ü²îÊ±
+                        //æ–°ç”Ÿæˆçš„è§£æ›´å·®æ—¶
                         r = ((double)rand()) / (RAND_MAX);
                         //printf("2222222\n");
-                        if (exp(-df / T) <= r) // ±£ÁôÔ­À´µÄ½â
+                        if (exp(-df / T) <= r) // ä¿ç•™åŸæ¥çš„è§£
                         {
                             memcpy(city_list, city_list_copy, cityNumber * sizeof(int));
                         }
                     }
                 }
-                T *= q; // ½µÎÂ
+                T *= q; // é™æ¸©
                 count++;
             }
              
-	            //½«±àºÅÉèÖÃÎªÈ«¾ÖµÄ±àºÅ
+	            //å°†ç¼–å·è®¾ç½®ä¸ºå…¨å±€çš„ç¼–å·
             for (int i = 0; i < cityNumber; i++)
             {
                 if (myid <= remain)
                 {
-                    //cityNumber½Ï¶àµÄ
+                    //cityNumberè¾ƒå¤šçš„
                     city_list[i] += ((myid-1) * cityNumber);
                 }
                 else
                 {
-                    //cityNumber½ÏÉÙµÄ
+                    //cityNumberè¾ƒå°‘çš„
                     city_list[i] += ((myid-1) * cityNumber + remain);
                 }
             }
             
-            printf("No  %d proc which is on the mechine %s finished , the path is:\n",myid,processor_name);
+            printf("No.%d proc which is on the mechine %s finished , the path is:\n",myid,processor_name);
             for (int i = 0; i < cityNumber; i++)
             {
                 if (i == cityNumber - 1)
@@ -457,35 +456,35 @@ int main(int argc, char* argv[])
     else
     {
         int city_list[N];
-        int count = 0; // ¼ÇÂ¼½µÎÂ´ÎÊı
-        double T = T0; //³õÊ¼ÎÂ¶È
-        init(city_list,N); //³õÊ¼»¯Ò»¸ö½â
-        int city_list_copy[N]; // ÓÃÓÚ±£´æÔ­Ê¼½â
-        double f1, f2, df; //f1Îª³õÊ¼½âÄ¿±êº¯ÊıÖµ£¬
-                         //f2ÎªĞÂ½âÄ¿±êº¯ÊıÖµ£¬dfÎª¶şÕß²îÖµ
-        double r; // 0-1Ö®¼äµÄËæ»úÊı£¬ÓÃÀ´¾ö¶¨ÊÇ·ñ½ÓÊÜĞÂ½â
-        while (T > T_end) // µ±ÎÂ¶ÈµÍÓÚ½áÊøÎÂ¶ÈÊ±£¬ÍË»ğ½áÊø
+        int count = 0; // è®°å½•é™æ¸©æ¬¡æ•°
+        double T = T0; //åˆå§‹æ¸©åº¦
+        init(city_list,N); //åˆå§‹åŒ–ä¸€ä¸ªè§£
+        int city_list_copy[N]; // ç”¨äºä¿å­˜åŸå§‹è§£
+        double f1, f2, df; //f1ä¸ºåˆå§‹è§£ç›®æ ‡å‡½æ•°å€¼ï¼Œ
+                         //f2ä¸ºæ–°è§£ç›®æ ‡å‡½æ•°å€¼ï¼Œdfä¸ºäºŒè€…å·®å€¼
+        double r; // 0-1ä¹‹é—´çš„éšæœºæ•°ï¼Œç”¨æ¥å†³å®šæ˜¯å¦æ¥å—æ–°è§£
+        while (T > T_end) // å½“æ¸©åº¦ä½äºç»“æŸæ¸©åº¦æ—¶ï¼Œé€€ç«ç»“æŸ
         {
             for (int i = 0; i < L; i++)
             {
-                // ¸´ÖÆÊı×é
+                // å¤åˆ¶æ•°ç»„
                 memcpy(city_list_copy, city_list, N * sizeof(int));
-                create_new(N,city_list); // ²úÉúĞÂ½â
+                create_new(N,city_list); // äº§ç”Ÿæ–°è§£
                 f1 = path_len(city_list_copy,city_pos,N);
                 f2 = path_len(city_list,city_pos,N);
                 df = f2 - f1;
-                // ÒÔÏÂÊÇMetropolis×¼Ôò
+                // ä»¥ä¸‹æ˜¯Metropoliså‡†åˆ™
                 if (df >= 0)
                 {
-                    //ĞÂÉú³ÉµÄ½â¸ü²îÊ±
+                    //æ–°ç”Ÿæˆçš„è§£æ›´å·®æ—¶
                     r = ((double)rand()) / (RAND_MAX);
-                    if (exp(-df / T) <= r) // ±£ÁôÔ­À´µÄ½â
+                    if (exp(-df / T) <= r) // ä¿ç•™åŸæ¥çš„è§£
                     {
                         memcpy(city_list, city_list_copy, N * sizeof(int));
                     }
                 }
             }
-            T *= q; // ½µÎÂ
+            T *= q; // é™æ¸©
             count++;
         }
     }
@@ -495,3 +494,4 @@ int main(int argc, char* argv[])
     return 0;
  }
     
+
